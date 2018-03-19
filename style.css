@@ -1,0 +1,15 @@
+.col-wrapper{
+    display: flex;
+}
+.calendar{
+    width: 200px;
+    height: auto;
+    border: 1px solid red;
+    padding: 5px;
+}
+.col{
+    width: 14.2857143%;
+    height: 30px;
+    display: inline-block;
+    text-align: center;
+}
