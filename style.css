@@ -6,10 +6,26 @@
     height: auto;
     border: 1px solid red;
     padding: 5px;
+    display: flex;
+    flex-wrap: wrap;
 }
 .col{
     width: 14.2857143%;
     height: 30px;
-    display: inline-block;
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.color{
+    color: slategrey;
+}
+.sunday{
+    background: pink;
+}
+.saturday{
+    color: red;
+}
+.today{
+    background: blue;
 }

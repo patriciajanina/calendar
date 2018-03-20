@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', function () {
         this.lastDayLoop = 0;
         this.tab = [];
         this.pushedDays = '';
+
+        this.yearAfterClick = 0;
+        this.monthAfterClick = 0;
+        this.firstDayEveryMonth = 0;
+        this.lastDayEveryMonth = 0;
     }
 
     //adding months
@@ -36,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
     //subtract months
     //if months less then 0 subtract neew year
     //and counter equal 12
-    Calendar.prototype.subtractFromCounter= function () {
+    Calendar.prototype.subtractFromCounter = function () {
         this.counter--;
         if (this.counter + this.month <= 0) {
             this.counterYear--;
@@ -67,19 +72,19 @@ document.addEventListener('DOMContentLoaded', function () {
     //
     Calendar.prototype.daysInMonth = function () {
         //checking the current year
-        //chengin year on click-changing on click
-        var y = this.year + this.counterYear;
+        //changing year on click-changing on click
+        this.yearAfterClick = this.year + this.counterYear;
 
         //checking current month-changing on click
-        var m = this.month + this.counter;
+        this.monthAfterClick = this.month + this.counter;
 
-        var d = new Date(y, m, 0);
+        var d = new Date(this.yearAfterClick, this.monthAfterClick, 0);
         //checking the first day of month (this is dynamically changing on click )
-        var firstDay = new Date(y, m - 1, 1);
+        this.firstDayEveryMonth = new Date(this.yearAfterClick, this.monthAfterClick - 1, 1);
 
         //if day is equal zero firstDayLoop is equal 6
-        if (firstDay.getDay() !== 0) {
-            var otherDays = 7 - firstDay.getDay();
+        if (this.firstDayEveryMonth.getDay() !== 0) {
+            var otherDays = 7 - this.firstDayEveryMonth.getDay();
             this.firstDayLoop = ((7 - otherDays) * -1) + 2;
         } else {
             this.firstDayLoop = ((7 - 1) * -1) + 1;
@@ -87,10 +92,10 @@ document.addEventListener('DOMContentLoaded', function () {
         //sum of days in month-changing on click
         this.daysInExactMounth = d.getDate();
 
-       //checking the day of last date
-        var lastDay = new Date(y, m, 0);
-        if (lastDay.getDay() !== 0) {
-            this.lastDayLoop = (7 - lastDay.getDay());
+        //checking the day of last date
+        this.lastDayEveryMonth = new Date(this.yearAfterClick, this.monthAfterClick, 0);
+        if (this.lastDayEveryMonth.getDay() !== 0) {
+            this.lastDayLoop = (7 - this.lastDayEveryMonth.getDay());
         } else {
             this.lastDayLoop = 0;
         }
@@ -101,15 +106,15 @@ document.addEventListener('DOMContentLoaded', function () {
         //index less equal amount days of exact month plus any empty space by end of the line
         for (var i = this.firstDayLoop; i <= this.daysInExactMounth + this.lastDayLoop; i++) {
             //all days which I want to push in tab
-            var days = new Date(y, m - 1, i);
+            var days = new Date(this.yearAfterClick, this.monthAfterClick - 1, i);
             //pushing all days to tab
             this.tab.push(days.getDate())
         }
         //display month and year in html file- dynamically changing on click
         var yearText = document.querySelector('.year');
-        yearText.innerHTML = y;
+        yearText.innerHTML = this.yearAfterClick;
         var monthText = document.querySelector('.month');
-        monthText.innerHTML = m;
+        monthText.innerHTML = this.monthAfterClick;
     };
     //pushing all days into divs - dynamically changing on click
     Calendar.prototype.pushing = function () {
@@ -130,20 +135,78 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     };
+    Calendar.prototype.styling = function () {
+        for (var y = 0; y <= 41; y++) {
+            this.pushedDays = document.querySelectorAll('.col' + y);
+            var d = this.pushedDays[0].innerHTML;
+            var t = new Date(this.yearAfterClick, this.monthAfterClick - 1, d);
+            // min and max helps find a days from prev or next month and add them class
+            var min = this.firstDayLoop * (-1);
+            var max = this.daysInExactMounth + min;
+            //looking for today
+            if (d == this.day && this.monthAfterClick == this.month + 1) {
+                this.pushedDays[0].classList.add('today');
+            } else {
+                this.pushedDays[0].classList.remove('today');
+            }
+            //if y less then sum of amount of days and days from prev month
+            if (max < y) {
+                //then add class to these days
+                this.pushedDays[0].classList.add('color');
+                // check the day of the date (looking for sunday)
+                var k = new Date(this.yearAfterClick, this.monthAfterClick, d);
+                //the day of date is sunday(equal 0) then add class else remove class
+                if (k.getDay() === 0 && this.pushedDays[0].innerHTML !== ' ') {
+                    this.pushedDays[0].classList.add('sunday');
+                } else {
+                    this.pushedDays[0].classList.remove('sunday');
+                }
+                //if any of these has same day remove class
+                this.pushedDays[0].classList.remove('today');
+
+            }
+            //else if y is less than my days before first of month
+            else if (min >= y) {
+                this.pushedDays[0].classList.add('color');
+                //if any day of these is saturday than delete this
+                this.pushedDays[0].classList.remove('saturday');
+                //if any of these has same day remove class
+                this.pushedDays[0].classList.remove('today');
+
+            } else { //else remove class and do if statement
+                this.pushedDays[0].classList.remove('color');
+                //looking for sundays
+                if (t.getDay() === 0 && this.pushedDays[0].innerHTML !== ' ') {
+                    this.pushedDays[0].classList.add('sunday');
+                } else {
+                    this.pushedDays[0].classList.remove('sunday');
+                }
+                //looking for saturdays
+                if (t.getDay() === 6 && this.pushedDays[0].innerHTML !== ' ') {
+                    this.pushedDays[0].classList.add('saturday');
+                } else {
+                    this.pushedDays[0].classList.remove('saturday');
+                }
+            }
+        }
+    };
     //creating new object
     var calendar = new Calendar();
     calendar.daysInMonth();
     calendar.generateDivs();
     calendar.pushing();
+    calendar.styling();
     //
     btnAddMonth.addEventListener('click', function () {
         calendar.addToCounter();
         calendar.daysInMonth();
         calendar.pushing();
+        calendar.styling();
     });
     btnSubtractMonth.addEventListener('click', function () {
         calendar.subtractFromCounter();
         calendar.daysInMonth();
         calendar.pushing();
+        calendar.styling();
     });
 });
